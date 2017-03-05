@@ -78,12 +78,17 @@ my $out=Imager->new(xsize => max(map {$_->getwidth} @i),
                     ysize => $o{h});
 $out->box(color => $col{white},filled => 1);
 my $y=0;
+print "BC = $blankCount, LC = $lineCount";
 if (($blankCount == 1) && ($lineCount == 2)) {
-  $y = 20;
+  $y = 18;
 }
 if (($blankCount == 2) && ($lineCount == 3)) {
-  $y = 24;
+  $y = 22;
 }
+if (($blankCount == 1) && ($lineCount == 3)) {
+  $y = 11;
+}
+
 foreach (@i) {
   $out->paste(left => ($o{a} eq 'c')?($out->getwidth-$_->getwidth)/2:
                      ($o{a} eq 'r')?($out->getwidth-$_->getwidth):0,
