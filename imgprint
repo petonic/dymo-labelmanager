@@ -7,6 +7,8 @@ use Getopt::Std;
 
 my %o=(d => '');
 
+my $spoolfile="/tmp/imgprint.spool";
+
 getopts('d:s',\%o);
 
 use constant ESC => "\x1b";
@@ -16,6 +18,8 @@ my %device=(
   name => 'Dymo LabelManager PnP',
   maxbytesperline => 8, # 12mm tape
 );
+
+system("rm -f $spoolfile");
 
 if ($o{d} eq '') {
   my @dp;
@@ -66,6 +70,7 @@ unless ($o{d} =~ /^\/dev/) {
 unless (-w $o{d}) {
   die "You don't have permission to write to $o{d}\n";
 }
+my $globDev = $o{d};
 my @cmd;
 my $bpl=-1;
 tapecolour(\@cmd,0);
@@ -110,6 +115,9 @@ unless ($o{s}) {
 getstatus(\@cmd);
 
 command($o{d},@cmd);
+
+
+system("/bin/dd if=$spoolfile of=$globDev bs=1M");
 
 sub tapecolour {
   my $cmd=shift;
@@ -156,11 +164,18 @@ sub line {
 sub command {
   my $dev=shift;
   my $cmd=join('',@_);
+  print STDERR "LOGFILE TEST len = $#_, devfile = <$dev>\n";
+  open(OUTF, ">> $spoolfile") or die "canot open output file";
   open DEV,'+<',$dev or die "Can't open $dev\n";
   binmode DEV;
-  print DEV $cmd;
-  my $resp;
-  read DEV,$resp,8;
-  close DEV;
-  return $resp;
+  print OUTF $cmd;
+  close OUTF;
+  return
+  # my $resp;
+  # read DEV,$resp,8;
+  # close DEV;
+  # print OUTF "***\n***\n***\n*** RETURN: =<$resp>\n";
+  # print OUTF "***\n***\n***\n***\n";
+  # close OUTF;
+  # return $resp;
 }
